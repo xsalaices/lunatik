@@ -7,8 +7,7 @@
 local lunatik = require("lunatik")
 local device  = require("device")
 
-local TABLE  <const> = "(error object is a table value)"
-local NUMBER <const> = "42"
+local MESSAGE <const> = "error object is not a string"
 
 local driver = {name = "lunatik_errobj"}
 
@@ -17,14 +16,14 @@ function driver:read()
 end
 
 local ok, err = pcall(lunatik.runtime, "tests/runtime/errobj_load")
-assert(not ok and err == TABLE, "a script raising a table as it loads answered " .. tostring(err))
+assert(not ok and err == MESSAGE, "a script raising a table as it loads answered " .. tostring(err))
 
 ok, err = pcall(lunatik.runtime, "tests/runtime/errobj_number")
-assert(not ok and err == NUMBER, "a script raising a number as it loads answered " .. tostring(err))
+assert(not ok and err == MESSAGE, "a script raising a number as it loads answered " .. tostring(err))
 
 local runtime = lunatik.runtime("tests/runtime/errobj_raise")
 ok, err = pcall(runtime.resume, runtime)
-assert(not ok and err == TABLE .. "\n", "a resume raising a table answered " .. tostring(err))
+assert(not ok and err == MESSAGE .. "\n", "a resume raising a table answered " .. tostring(err))
 
 device.new(driver)
 

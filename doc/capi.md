@@ -598,12 +598,10 @@ Like `lunatik_try`, but stores the return value in `ret` before checking. Define
 ```C
 const char *lunatik_errmsg(lua_State *L);
 ```
-Returns the error on top of the stack of `L` without allocating: a string as it is, a number written into
-a buffer of the caller's block, and any other value as `"(error object is a <type> value)"`, the way the
-standalone interpreter names it. `lua_tostring` converts a number in place, which allocates, and an
-allocation that fails outside a protected call raises with no handler, a `BUG()`; any other value reads as
-`NULL`. After a protected call or a resume fails, the error is read through it. Defined as a macro, since
-the buffer lives until the end of the block that calls it.
+Returns the error on top of the stack of `L` when it is a string, and `"error object is not a string"`
+otherwise, without converting it: `lua_tostring` converts a number in place, which allocates, and an
+allocation that fails outside a protected call raises with no handler, a `BUG()`; any other value reads
+as `NULL`. After a protected call or a resume fails, the error is read through it.
 
 ---
 

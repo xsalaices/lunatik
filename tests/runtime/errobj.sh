@@ -4,28 +4,27 @@
 # SPDX-License-Identifier: MIT OR GPL-2.0-only
 #
 # An error object that is not a string reaches the caller and the kernel log
-# read without converting it: a number as the number, anything else as
-# "(error object is a <type> value)".
+# as "error object is not a string", read without converting it.
 #
-# errobj.lua creates a runtime whose script raises a table as it loads, which
-# lunatik.runtime refuses with "(error object is a table value)", one whose
-# script raises 42, refused with "42", and a runtime of errobj_raise.lua, whose
-# body raises a table, which resume refuses with the table's message. It also
-# creates lunatik_errobj, whose read raises a table: a read of the device fails
-# with ECANCELED and the kernel log names the message and the operation. The
-# same errobj_raise.lua, spawned, is a thread body that raises a table, and the
+# errobj.lua creates a runtime whose script raises a table as it loads, and one
+# whose script raises a number, which lunatik.runtime refuses with that message
+# rather than the number converted, and a runtime of errobj_raise.lua,
+# whose body raises a table, which resume refuses with it. It also creates
+# lunatik_errobj, whose read raises a table: a read of the device fails with
+# ECANCELED and the kernel log names the message and the operation. The same
+# errobj_raise.lua, spawned, is a thread body that raises a table, and the
 # kernel log names the message.
 #
-# Converting a number in place allocates, and an allocation that fails outside
-# a protected call is a BUG. What the test sees is the message: the failure
-# needs the allocation to fail at that instant.
+# Converting such an object allocates, and an allocation that fails outside a
+# protected call is a BUG. What the test sees is the message: the failure needs
+# the allocation to fail at that instant.
 #
 # Usage: sudo bash tests/runtime/errobj.sh
 
 SCRIPT="tests/runtime/errobj"
 THREAD="tests/runtime/errobj_raise"
 DEVICE="lunatik_errobj"
-MESSAGE="(error object is a table value)"
+MESSAGE="error object is not a string"
 ECANCELED="Operation canceled"
 TIMEOUT=5
 
@@ -47,7 +46,7 @@ ktap_plan 4
 
 mark_dmesg
 run_script "$SCRIPT"
-ktap_pass "a script that raises a table or a number, and a resume that raises a table, are refused with what they raised"
+ktap_pass "a script that raises a table or a number, and a resume that raises a table, are refused with the message"
 
 cat "/dev/$DEVICE" 2>&1 | grep -qF "$ECANCELED" || fail "a read whose callback raises a table did not fail with ECANCELED"
 logged "luadevice: $MESSAGE: read" || fail "the read's error is not in the kernel log as the message"

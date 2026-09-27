@@ -173,25 +173,10 @@ do {							\
 	lunatik_tryret(L, ret, op, __VA_ARGS__);	\
 } while (0)
 
-#define LUNATIK_ERRMSGSIZE	64
-
-static inline const char *lunatik_formaterrmsg(lua_State *L, char *buf, size_t size)
+static inline const char *lunatik_errmsg(lua_State *L)
 {
-	switch (lua_type(L, -1)) {
-	case LUA_TSTRING:
-		return lua_tostring(L, -1);
-	case LUA_TNUMBER:
-		snprintf(buf, size, LUA_INTEGER_FMT, (LUAI_UACINT)lua_tointeger(L, -1));
-		break;
-	default:
-		snprintf(buf, size, "(error object is a %s value)", luaL_typename(L, -1));
-		break;
-	}
-	return buf;
+	return lua_type(L, -1) == LUA_TSTRING ? lua_tostring(L, -1) : "error object is not a string";
 }
-
-/* the buffer lives in the caller's block, since nothing reading an error here may allocate */
-#define lunatik_errmsg(L)	lunatik_formaterrmsg((L), (char [LUNATIK_ERRMSGSIZE]){0}, LUNATIK_ERRMSGSIZE)
 
 static inline void lunatik_checkfield(lua_State *L, int idx, const char *field, int type)
 {
