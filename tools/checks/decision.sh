@@ -19,13 +19,14 @@ recommend='recomend|recommend'
 status=0
 for file in "$@"; do
 	[ -f "$file" ] || continue
-	grep -qiE "$handoff" "$file" || continue
+	said=$(sed -E 's/"[^"]*"//g; s/`[^`]*`//g' "$file") # a phrase quoted is one talked about, not one said
+	printf '%s\n' "$said" | grep -qiE "$handoff" || continue
 	missing=""
 	grep -qiE "$question" "$file" || missing="$missing, what is to be decided"
 	[ "$(grep -ciE "$option" "$file")" -ge 2 ] || missing="$missing, two options or more"
 	grep -qiE "$recommend" "$file" || missing="$missing, a recommendation"
 	[ -z "$missing" ] && continue
-	grep -niE "$handoff" "$file" | sed "s|^|$file:|"
+	printf '%s\n' "$said" | grep -niE "$handoff" | sed "s|^|$file:|"
 	echo "$file: hands a decision over without${missing#,}; write \"Decision: <the question>\", options A) and B) with what each changes, and \"Recommendation: <option>, because <reason>\""
 	status=1
 done
