@@ -736,8 +736,7 @@ Never `require("foo").method()`. A kernel script does the same with a local:
 * Comments describe the present, not the history. No "was", "no longer", "used to".
 * No comments restating obvious kernel or Lua API usage. Non obvious rationale is welcome.
 * A consumer does not document the API it calls: what a binding does belongs to its doc block and to
-  the example's section of `doc/guide/05-examples.md`, and a copy in the script that calls it rots on
-  the next change.
+  the example's own `README.md`, and a copy in the script that calls it rots on the next change.
   `examples/ifquarantine` carried `notifier.netdevice(callback) -- replays a REGISTER for each device
   that already exists`, which `notifier.netdevice`'s own block and the example's README paragraph
   already say.
